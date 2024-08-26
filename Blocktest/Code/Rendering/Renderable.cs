@@ -6,7 +6,8 @@ public enum Layer {
     Player = 3,
     Default = 2,
     ForegroundBlocks = 1,
-    BackgroundBlocks = 4
+    BackgroundBlocks = 4,
+    Parallax = 5
 }
 
 public sealed class Renderable {

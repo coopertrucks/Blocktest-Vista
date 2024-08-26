@@ -4,6 +4,7 @@ using System.Net;
 using Blocktest.Block_System;
 using Blocktest.Misc;
 using Blocktest.Networking;
+using Blocktest.Parallax;
 using Blocktest.Rendering;
 using Blocktest.UI;
 using Microsoft.Xna.Framework.Input;
@@ -32,6 +33,8 @@ public sealed class GameScene : IScene {
     private Vector2 _cameraStayPosition;
 
     private readonly WorldState _worldState = new();
+
+    private readonly ParallaxLayer backgroundLayer;
 
     private KeyboardState _previousKeyboardState;
     public int BlockSelected = 1; //ID of the block to place
@@ -66,6 +69,8 @@ public sealed class GameScene : IScene {
 
         WorldDownload testDownload = WorldDownload.Default();
         testDownload.Process(_worldState);
+
+        backgroundLayer = new("duskwood_trees", new Vector2Int(0, -180), 2*Vector2.One, _camera);
     }
 
     public bool BuildMode { get; private set; } = true; //true for build, false for destroy
@@ -82,6 +87,7 @@ public sealed class GameScene : IScene {
 
     public void Draw(GameTime gameTime, GraphicsDevice graphicsDevice) {
         graphicsDevice.Clear(Color.CornflowerBlue);
+        backgroundLayer.Draw(); // parallax
         _camera.Draw(graphicsDevice, _spriteBatch);
 
         const bool pixelPerfect = true;
@@ -170,6 +176,7 @@ public sealed class GameScene : IScene {
 
         // allows free camera movement with lctrl, returns to player
         Vector2 cameraMoveVector = Vector2.Zero;
+        //Debug.WriteLine(currentMouseState.Position);
         if (currentKeyboardState.IsKeyDown(Keys.LeftControl)) {
             if (_camera.RenderLocation.Contains(currentMouseState.Position)) {
                 cameraMoveVector.X = (currentMouseState.Position.X - _camera.RenderLocation.Center.X)/10;
