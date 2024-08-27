@@ -6,45 +6,81 @@ namespace Blocktest.Parallax;
 
 public sealed class ParallaxManager
 {
-    public Drawable Image;
-    public Renderable Renderable;
-
-
-    private Vector2Int _parallaxOffset;
-    private Vector2 _parallaxValue;
-    private float _parallaxLayer;
-
+    public readonly Dictionary<string,ParallaxLayer> ParallaxLayers;
     private readonly Camera _camera;
-    private Transform _layerTransform;
-    private Vector2Int _layerPosition;
 
-    public ParallaxManager(string imageName, Vector2Int parallaxOffset, Vector2 parallaxValue, Camera renderCamera)
+    public ParallaxManager(Camera camera)
     {
-        string path = @"Graphics\Parallax\" + imageName;
-        _parallaxOffset = parallaxOffset;
-        _parallaxValue = parallaxValue;
-        _camera = renderCamera;
+        _camera = camera;
+        ParallaxLayers = new Dictionary<string, ParallaxLayer>();
 
-        Debug.WriteLine(path);
-        Image = new Drawable(path); // cool for single image parallaxes
+        Default();
+    }
 
-        // rendering here
-        _layerPosition = _parallaxOffset + ((Vector2Int)_camera.Position / ((Vector2Int)_parallaxValue));
-        _layerTransform = new(_layerPosition, null, null, 0);
-        Renderable = new Renderable(_layerTransform, Layer.Parallax, Image, Color.White);
+    public void AddParallaxLayer(ParallaxLayer parallaxLayer)
+    {
 
-        _camera.RenderedComponents.Add(Renderable);
-        Debug.WriteLine("parallax rendered");
+    }
+
+    public void RemoveParallaxLayer(ParallaxLayer parallaxLayer)
+    {
+
+    }
+
+    public void GetParallaxLayer(string parallaxLayerName)
+    {
+
+    }
+
+    public void Default()
+    {
+        ParallaxLayer layer = new("duskwood_trees", new Vector2Int(0, -200), 3 * Vector2.One, 1, _camera);
+        ParallaxLayers.Add("trees", layer);
+
+        layer = new("duskwood_trees2", new Vector2Int(0, -120), 2 * Vector2.One, 2, _camera);
+        ParallaxLayers.Add("trees2", layer);
+
+        Debug.WriteLine("Default ParallaxManager Initialized");
+
+        LayerManager();
+    }
+
+    private void LayerManager() // clean up code so this horseshit doesn't have to exist
+    {
+        float maxZLevel = 0;
+
+        if (ParallaxLayers.Count == 0)
+        {
+            return;
+        }
+
+        foreach (KeyValuePair<string, ParallaxLayer> parallax in ParallaxLayers)
+        {
+            Debug.WriteLine(parallax.Value.ZLevel);
+            if (parallax.Value.ZLevel > maxZLevel)
+            {
+                maxZLevel = parallax.Value.ZLevel;
+            }
+        }
+
+        foreach (KeyValuePair<string, ParallaxLayer> parallax in ParallaxLayers)
+        {
+            Debug.WriteLine(parallax.Value.ZLevel);
+            parallax.Value.Initialize((float)Layer.Parallax + parallax.Value.ZLevel / maxZLevel);
+        }
     }
 
     public void Draw()
     {
-        _camera.RenderedComponents.Remove(Renderable);
+        if (ParallaxLayers.Count == 0)
+        {
+            return;
+        }
 
-        _layerPosition = _parallaxOffset + ((Vector2Int)_camera.Position / ((Vector2Int)_parallaxValue));
-        _layerTransform = new(_layerPosition, null, null, 0);
-        Renderable = new Renderable(_layerTransform, Layer.Parallax, Image, Color.White);
-
-        _camera.RenderedComponents.Add(Renderable);
+        foreach (KeyValuePair<string, ParallaxLayer> parallax in ParallaxLayers)
+        {
+            //Debug.WriteLine(parallax.Value);
+            parallax.Value.Draw();
+        }
     }
 }

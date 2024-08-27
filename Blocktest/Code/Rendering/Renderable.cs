@@ -13,13 +13,23 @@ public enum Layer {
 public sealed class Renderable {
     public readonly Transform Transform;
     public Drawable? Appearance;
-    public Layer Layer;
+    
     public Color RenderColor;
+    public float LayerValue;
 
     public Renderable(Transform transform, Layer layer = Layer.Default, Drawable? appearance = null,
                       Color? renderColor = null) {
         Transform = transform;
-        Layer = layer;
+        LayerValue = (float)layer;
+        Appearance = appearance;
+        RenderColor = renderColor ?? Color.White;
+    }
+
+    public Renderable(Transform transform, float layer = (float)Layer.Default, Drawable? appearance = null,
+                      Color? renderColor = null)
+    {
+        Transform = transform;
+        LayerValue = layer;
         Appearance = appearance;
         RenderColor = renderColor ?? Color.White;
     }

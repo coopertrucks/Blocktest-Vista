@@ -34,7 +34,7 @@ public sealed class GameScene : IScene {
 
     private readonly WorldState _worldState = new();
 
-    private readonly ParallaxLayer backgroundLayer;
+    private ParallaxManager _parallaxManager;
 
     private KeyboardState _previousKeyboardState;
     public int BlockSelected = 1; //ID of the block to place
@@ -70,7 +70,8 @@ public sealed class GameScene : IScene {
         WorldDownload testDownload = WorldDownload.Default();
         testDownload.Process(_worldState);
 
-        backgroundLayer = new("duskwood_trees", new Vector2Int(0, -180), 2*Vector2.One, _camera);
+        //backgroundLayer = new("duskwood_trees", new Vector2Int(0, -180), 2*Vector2.One, _camera);
+        _parallaxManager = new(_camera);
     }
 
     public bool BuildMode { get; private set; } = true; //true for build, false for destroy
@@ -87,7 +88,7 @@ public sealed class GameScene : IScene {
 
     public void Draw(GameTime gameTime, GraphicsDevice graphicsDevice) {
         graphicsDevice.Clear(Color.CornflowerBlue);
-        backgroundLayer.Draw(); // parallax
+        _parallaxManager.Draw(); // parallax engine
         _camera.Draw(graphicsDevice, _spriteBatch);
 
         const bool pixelPerfect = true;
