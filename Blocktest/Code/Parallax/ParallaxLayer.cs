@@ -17,6 +17,7 @@ public sealed class ParallaxLayer
     private readonly Camera _camera;
 
     private Vector2Int _layerPosition;
+    private Vector2Int _layerPositionBase;
     private float _zLevel;
 
     public ParallaxLayer(string imageName, Vector2Int parallaxOffset, Vector2 parallaxValue, float parallaxLayer, Camera renderCamera)
@@ -25,23 +26,19 @@ public sealed class ParallaxLayer
         Offset = parallaxOffset;
         Value = parallaxValue;
         ZLevel = parallaxLayer;
-        _zLevel = ZLevel;
+        _zLevel = (float)Layer.Parallax + ZLevel;
         _camera = renderCamera;
 
         Image = new Drawable(path); // cool for single image parallaxes
 
         // default left starting position for parallax array
-        _layerPosition = ((Vector2Int)_camera.Position / ((Vector2Int)Value)) + Offset - new Vector2Int(Image.Bounds.Width, 0);
+        _layerPosition = (Vector2Int)(_camera.Position * Value + (Vector2)Offset - new Vector2(Image.Bounds.Width, 0));
+        _layerPositionBase = (Vector2Int)Vector2.Zero;
 
         _repeatRenderables = new List<Renderable>
         {
             Capacity = (_camera.RenderTarget.Width / Image.Bounds.Width) + 2
         };
-    }
-
-    public void Initialize(float trueZLevel)
-    {
-        _zLevel = trueZLevel;
 
         for (int i = 0; i < _repeatRenderables.Capacity; i++)
         {
@@ -52,26 +49,37 @@ public sealed class ParallaxLayer
         }
     }
 
+    public ParallaxLayer(string imageName, Vector2Int parallaxOffset, Vector2 parallaxValue, Camera renderCamera)
+        : this(imageName, parallaxOffset, parallaxValue, parallaxValue.X, renderCamera)
+    {
+
+    }
+
+    //public void Initialize(float trueZLevel)
+    //{
+    //    _zLevel = trueZLevel;
+
+
+    //}
+
     public void Draw()
     {
-        _layerPosition = ((Vector2Int)_camera.Position / ((Vector2Int)Value)) + Offset - new Vector2Int(Image.Bounds.Width, 0); // updates position
+        _layerPosition = _layerPositionBase + (Vector2Int)(_camera.Position * Value + (Vector2)Offset - new Vector2(Image.Bounds.Width, 0)); // updates position
 
-        if ((int)_camera.Position.X > _layerPosition.X + Image.Bounds.Width) // checks if left edge off screen
+        if ((int)Math.Round(_camera.Position.X) > _layerPosition.X + Image.Bounds.Width + Image.Bounds.Width / 10) // checks if right edge off screen w/ bound, to skip to right
         {
-            int skip = (int)((_camera.Position.X - (float)_layerPosition.X) / (float)Image.Bounds.Width); // number of images to skip when leaping camera
+            int skip = (int)Math.Round((_camera.Position.X - _layerPosition.X) / Image.Bounds.Width); // number of images to skip when leaping camera
             skip = Math.Max(1, skip);
-            _layerPosition += new Vector2Int(skip * Image.Bounds.Width, 0);
+            _layerPositionBase += new Vector2Int(skip * Image.Bounds.Width, 0);
         }
-        else if ((int)_camera.Position.X < _layerPosition.X) // checks if right edge off screen
+        else if ((int)Math.Round(_camera.Position.X) < _layerPosition.X + Image.Bounds.Width / 10) // checks if left edge off screen w/ bound, to skip to left
         {
-            int skip = 1 + (int)(((float)_layerPosition.X - _camera.Position.X)/(float)Image.Bounds.Width);
+            int skip = 1 + (int)Math.Round(((float)_layerPosition.X - _camera.Position.X) / (float)Image.Bounds.Width);
             skip = Math.Max(1, skip);
-            _layerPosition -= new Vector2Int(skip * Image.Bounds.Width, 0);
+            _layerPositionBase -= new Vector2Int(skip * Image.Bounds.Width, 0);
         }
 
-        //Debug.WriteLine(_layerPosition, );
-
-        for (int i = 0; i < _repeatRenderables.Capacity; i++)
+        for (int i = 0; i < _repeatRenderables.Capacity; i++) // true drawing action
         {
             _camera.RenderedComponents.Remove(_repeatRenderables[i]);
 

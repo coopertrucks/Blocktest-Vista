@@ -7,7 +7,7 @@ public enum Layer {
     Default = 2,
     ForegroundBlocks = 1,
     BackgroundBlocks = 4,
-    Parallax = 5
+    Parallax = 5 // owns space in 5 <= Parallax < 6, for now - see ParallaxLayer
 }
 
 public sealed class Renderable {

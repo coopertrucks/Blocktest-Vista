@@ -34,40 +34,19 @@ public sealed class ParallaxManager
 
     public void Default()
     {
-        ParallaxLayer layer = new("duskwood_trees", new Vector2Int(0, -200), 3 * Vector2.One, 1, _camera);
+        ParallaxLayer layer = new("duskwood_trees", new Vector2Int(0, -250), new Vector2(0.3f, 0.3f), _camera);
         ParallaxLayers.Add("trees", layer);
 
-        layer = new("duskwood_trees2", new Vector2Int(0, -120), 2 * Vector2.One, 2, _camera);
+        layer = new("duskwood_trees2", new Vector2Int(0, -170), new Vector2(0.7f, 0.7f), _camera);
         ParallaxLayers.Add("trees2", layer);
 
+        layer = new("prometheus_towers", new Vector2Int(-20, 200), new Vector2(1.0f, 1.0f), _camera);
+        ParallaxLayers.Add("towers", layer);
+
+        layer = new("prometheus_city", new Vector2Int(0, 100), new Vector2(1.2f, 1.1f), _camera);
+        ParallaxLayers.Add("city", layer);
+
         Debug.WriteLine("Default ParallaxManager Initialized");
-
-        LayerManager();
-    }
-
-    private void LayerManager() // clean up code so this horseshit doesn't have to exist
-    {
-        float maxZLevel = 0;
-
-        if (ParallaxLayers.Count == 0)
-        {
-            return;
-        }
-
-        foreach (KeyValuePair<string, ParallaxLayer> parallax in ParallaxLayers)
-        {
-            Debug.WriteLine(parallax.Value.ZLevel);
-            if (parallax.Value.ZLevel > maxZLevel)
-            {
-                maxZLevel = parallax.Value.ZLevel;
-            }
-        }
-
-        foreach (KeyValuePair<string, ParallaxLayer> parallax in ParallaxLayers)
-        {
-            Debug.WriteLine(parallax.Value.ZLevel);
-            parallax.Value.Initialize((float)Layer.Parallax + parallax.Value.ZLevel / maxZLevel);
-        }
     }
 
     public void Draw()
@@ -79,7 +58,6 @@ public sealed class ParallaxManager
 
         foreach (KeyValuePair<string, ParallaxLayer> parallax in ParallaxLayers)
         {
-            //Debug.WriteLine(parallax.Value);
             parallax.Value.Draw();
         }
     }

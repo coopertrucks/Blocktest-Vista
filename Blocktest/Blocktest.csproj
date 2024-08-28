@@ -11,6 +11,11 @@
         <ApplicationIcon>Icon.ico</ApplicationIcon>
     </PropertyGroup>
     <ItemGroup>
+      <Compile Remove="Content\Graphics\NewFolder\**" />
+      <EmbeddedResource Remove="Content\Graphics\NewFolder\**" />
+      <None Remove="Content\Graphics\NewFolder\**" />
+    </ItemGroup>
+    <ItemGroup>
         <None Remove="Icon.ico" />
         <None Remove="Icon.bmp" />
     </ItemGroup>
@@ -38,4 +43,10 @@
         <Message Text="Restoring dotnet tools" Importance="High" />
         <Exec Command="dotnet tool restore" />
     </Target>
+    <ItemGroup>
+      <NPLContentReferences Remove="Content\Graphics\NewFolder\**" />
+    </ItemGroup>
+    <ItemGroup>
+      <MGCBContentReferences Remove="Content\Graphics\NewFolder\**" />
+    </ItemGroup>
 </Project>

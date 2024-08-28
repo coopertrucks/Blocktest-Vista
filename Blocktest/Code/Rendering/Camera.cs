@@ -49,7 +49,7 @@ public sealed class Camera {
 
             spriteBatch.Draw(component.Appearance.Texture, positionBounds, component.Appearance.Bounds,
                 component.RenderColor, component.Transform.Rotation, component.Transform.Origin, SpriteEffects.None,
-                component.LayerValue / EnumCount);
+                component.LayerValue / (EnumCount + 1));
         }
 
         spriteBatch.End();

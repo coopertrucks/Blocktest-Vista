@@ -28,13 +28,12 @@ public sealed class GameScene : IScene {
     private readonly GameUI _gameUi;
     private readonly Client _networkingClient;
     private readonly SpriteBatch _spriteBatch;
+    private readonly ParallaxManager _parallaxManager;
 
     private readonly Vector2 _cameraPosition;
     private Vector2 _cameraStayPosition;
 
     private readonly WorldState _worldState = new();
-
-    private ParallaxManager _parallaxManager;
 
     private KeyboardState _previousKeyboardState;
     public int BlockSelected = 1; //ID of the block to place
@@ -47,6 +46,7 @@ public sealed class GameScene : IScene {
         _cameraPosition = Vector2.Zero;
         _camera = new Camera(_cameraPosition, new Vector2(640, 360), game.GraphicsDevice);
 
+        _parallaxManager = new(_camera); // parallax engine
         _backgroundTilemapSprites = new RenderableTilemap(_worldState.Foreground, _camera);
         _foregroundTilemapSprites = new RenderableTilemap(_worldState.Background, _camera);
         _networkingClient = new Client(_worldState, _camera, game);
@@ -69,9 +69,6 @@ public sealed class GameScene : IScene {
 
         WorldDownload testDownload = WorldDownload.Default();
         testDownload.Process(_worldState);
-
-        //backgroundLayer = new("duskwood_trees", new Vector2Int(0, -180), 2*Vector2.One, _camera);
-        _parallaxManager = new(_camera);
     }
 
     public bool BuildMode { get; private set; } = true; //true for build, false for destroy
@@ -88,7 +85,7 @@ public sealed class GameScene : IScene {
 
     public void Draw(GameTime gameTime, GraphicsDevice graphicsDevice) {
         graphicsDevice.Clear(Color.CornflowerBlue);
-        _parallaxManager.Draw(); // parallax engine
+        _parallaxManager.Draw(); // parallax draw call
         _camera.Draw(graphicsDevice, _spriteBatch);
 
         const bool pixelPerfect = true;
@@ -184,6 +181,11 @@ public sealed class GameScene : IScene {
                 cameraMoveVector.Y = -(currentMouseState.Position.Y - _camera.RenderLocation.Center.Y)/10;
             }
             if (cameraMoveVector != Vector2.Zero) {
+                if (cameraMoveVector.Length() > 20)
+                {
+                    cameraMoveVector.X = 20 * (int)Math.Round(cameraMoveVector.X) / (int)cameraMoveVector.Length();
+                    cameraMoveVector.Y = 20 * (int)Math.Round(cameraMoveVector.Y) / (int)cameraMoveVector.Length();
+                }
                 _camera.Position += cameraMoveVector;
             }
         } else {
