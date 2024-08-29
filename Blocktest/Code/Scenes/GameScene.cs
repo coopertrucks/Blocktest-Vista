@@ -138,7 +138,7 @@ public sealed class GameScene : IScene {
             _gameUi.BlockSelector.SelectedIndex = BlockSelected;
         }
 
-        float moveValue = 2.5f;
+        float moveValue = 2;
         if (currentKeyboardState.IsKeyDown(Keys.LeftShift) || currentKeyboardState.IsKeyDown(Keys.RightShift)) {
             moveValue *= 4;
         }
@@ -159,6 +159,7 @@ public sealed class GameScene : IScene {
         int selfId = _networkingClient.Server?.RemoteId ?? 0;
         if (moveVector != Vector2.Zero) {
             //_camera.Position += moveVector;
+            Debug.WriteLine(selfId);
 
             MovePlayer movementPacket = new() {
                 TickNum = _networkingClient.LocalTickBuffer.CurrTick,
@@ -174,23 +175,30 @@ public sealed class GameScene : IScene {
 
         // allows free camera movement with lctrl, returns to player
         Vector2 cameraMoveVector = Vector2.Zero;
-        //Debug.WriteLine(currentMouseState.Position);
-        if (currentKeyboardState.IsKeyDown(Keys.LeftControl)) {
-            if (_camera.RenderLocation.Contains(currentMouseState.Position)) {
-                cameraMoveVector.X = (currentMouseState.Position.X - _camera.RenderLocation.Center.X)/10;
-                cameraMoveVector.Y = -(currentMouseState.Position.Y - _camera.RenderLocation.Center.Y)/10;
-            }
-            if (cameraMoveVector != Vector2.Zero) {
-                if (cameraMoveVector.Length() > 20)
+        if (_networkingClient.WorldDownloaded)
+        {
+            if (currentKeyboardState.IsKeyDown(Keys.LeftControl))
+            {
+                if (_camera.RenderLocation.Contains(currentMouseState.Position))
                 {
-                    cameraMoveVector.X = 20 * (int)Math.Round(cameraMoveVector.X) / (int)cameraMoveVector.Length();
-                    cameraMoveVector.Y = 20 * (int)Math.Round(cameraMoveVector.Y) / (int)cameraMoveVector.Length();
+                    cameraMoveVector.X = (currentMouseState.Position.X - _camera.RenderLocation.Center.X) / 10;
+                    cameraMoveVector.Y = -(currentMouseState.Position.Y - _camera.RenderLocation.Center.Y) / 10;
                 }
-                _camera.Position += cameraMoveVector;
+                if (cameraMoveVector != Vector2.Zero)
+                {
+                    if (cameraMoveVector.Length() > 20)
+                    {
+                        cameraMoveVector.X = 20 * (int)Math.Round(cameraMoveVector.X) / (int)cameraMoveVector.Length();
+                        cameraMoveVector.Y = 20 * (int)Math.Round(cameraMoveVector.Y) / (int)cameraMoveVector.Length();
+                    }
+                    _camera.Position += cameraMoveVector;
+                }
             }
-        } else {
-            _camera.Position.X = _worldState.PlayerPositions[selfId].Position.X - _camera.RenderTarget.Width / 2;
-            _camera.Position.Y = _worldState.PlayerPositions[selfId].Position.Y - _camera.RenderTarget.Height / 2;
+            else
+            {
+                _camera.Position.X = _worldState.PlayerPositions[selfId].Position.X - _camera.RenderTarget.Width / 2;
+                _camera.Position.Y = _worldState.PlayerPositions[selfId].Position.Y - _camera.RenderTarget.Height / 2;
+            }
         }
 
         _previousKeyboardState = currentKeyboardState;
