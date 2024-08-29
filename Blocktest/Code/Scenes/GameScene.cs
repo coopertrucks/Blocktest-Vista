@@ -159,7 +159,6 @@ public sealed class GameScene : IScene {
         int selfId = _networkingClient.Server?.RemoteId ?? 0;
         if (moveVector != Vector2.Zero) {
             //_camera.Position += moveVector;
-            Debug.WriteLine(selfId);
 
             MovePlayer movementPacket = new() {
                 TickNum = _networkingClient.LocalTickBuffer.CurrTick,
@@ -175,7 +174,7 @@ public sealed class GameScene : IScene {
 
         // allows free camera movement with lctrl, returns to player
         Vector2 cameraMoveVector = Vector2.Zero;
-        if (_networkingClient.WorldDownloaded)
+        if (!_connect || _networkingClient.WorldDownloaded)
         {
             if (currentKeyboardState.IsKeyDown(Keys.LeftControl))
             {
