@@ -106,10 +106,10 @@ public sealed class ParallaxManager
         //ParallaxLayer layer = new("duskwood_trees2", new Vector2Int(0, -160), new Vector2(0.9f), _camera);
         //AddParallaxLayer(layer);
 
-        ParallaxLayer layer = new("duskwood_trees2", new Vector2Int(0, 0), new Vector2(0.9f), 0.91f, 2*Vector2.One, _camera);
-        AddParallaxLayer(layer);
+        //ParallaxLayer layer = new("duskwood_trees2", new Vector2Int(0, 0), new Vector2(0.9f), 0.91f, 2*Vector2.One, 0.2f*Vector2.UnitX, _camera);
+        //AddParallaxLayer(layer);
 
-        layer = new("duskwood_trees2", new Vector2Int(0, -300), new Vector2(0.9f), _camera, repeatX: false, repeatY: true);
+        ParallaxLayer layer = new("duskwood_trees2", new Vector2Int(0, -200), new Vector2(0.9f), 0.9f, Vector2.One, Vector2.UnitX, _camera, repeatX: false, repeatY: true);
         AddParallaxLayer(layer);
 
         // test code
