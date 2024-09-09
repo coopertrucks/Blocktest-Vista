@@ -103,14 +103,26 @@ public sealed class ParallaxManager
         //List<string> layerNames = ["one", "two", ""];
         //AddParallaxLayers(layers, layerNames);
 
-        //ParallaxLayer layer = new("duskwood_trees2", new Vector2Int(0, -160), new Vector2(0.9f), _camera);
-        //AddParallaxLayer(layer);
-
-        //ParallaxLayer layer = new("duskwood_trees2", new Vector2Int(0, 0), new Vector2(0.9f), 0.91f, 2*Vector2.One, 0.2f*Vector2.UnitX, _camera);
-        //AddParallaxLayer(layer);
-
-        ParallaxLayer layer = new("duskwood_trees2", new Vector2Int(0, -200), new Vector2(0.9f), 0.9f, Vector2.One, 0.5f*Vector2.UnitX, 0.0f, _camera, repeatX: false, repeatY: true);
+        ParallaxLayer layer = new("duskwood_trees2", new Vector2Int(0, -160), new Vector2(0.9f), _camera);
         AddParallaxLayer(layer);
+
+        layer = new("duskwood_trees2", new Vector2Int(0, -400), new Vector2(0.9f), 0.91f, 2 * Vector2.One, 0.2f * Vector2.UnitX, _camera);
+        AddParallaxLayer(layer);
+
+        // new Vector2(-5f/10f, -3f/10f)
+        //ParallaxLayer layer = new("array1", new Vector2Int(0, 0), new Vector2(0.0f), 1.0f, Vector2.One, new Vector2(0, -5f), _camera, repeatX: true, repeatY: true);
+        //AddParallaxLayer(layer);
+
+        //ParallaxLayer layer = new("array1", new Vector2Int(0, 0), new Vector2(0.0f), 1.0f, 0.25f * Vector2.One, new Vector2(-5, -3f), _camera, repeatX: true, repeatY: true);
+        //AddParallaxLayer(layer);
+        //layer = new("array1", new Vector2Int(-100, 0), new Vector2(0.0f), 1.0f, 0.25f * Vector2.One, new Vector2(0, 5f), _camera, repeatX: false, repeatY: true);
+        //AddParallaxLayer(layer);
+
+        //layer = new("array1", new Vector2Int(0, 0), new Vector2(0.0f), 1.0f, 0.25f * Vector2.One, new Vector2(0, -5f), _camera, repeatX: true, repeatY: true);
+        //AddParallaxLayer(layer);
+
+        //layer = new("line1", new Vector2Int(0, 50), new Vector2(0.0f), 0.9f, Vector2.One, Vector2.Zero, _camera, repeatX: true, repeatY: false);
+        //AddParallaxLayer(layer);
 
         // test code
         //GetParallaxLayer("duskwood_trees2");
