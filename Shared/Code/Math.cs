@@ -10,12 +10,12 @@ public struct Vector2Int : INetSerializable {
     /// <summary>
     ///     The X coordinate of this <see cref="Vector2Int" />.
     /// </summary>
-    public int X { get; private set; }
+    public int X { get; set; }
 
     /// <summary>
     ///     The Y coordinate of this <see cref="Vector2Int" />.
     /// </summary>
-    public int Y { get; private set; }
+    public int Y { get; set; }
 
     /// <summary>
     ///     Create a <see cref="Vector2Int" />.
