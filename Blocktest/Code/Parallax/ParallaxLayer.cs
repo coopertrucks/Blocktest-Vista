@@ -13,11 +13,7 @@ public sealed class ParallaxLayer
     public readonly Vector2 Value;
     public readonly Vector2 Scale;
     public readonly Vector2 Speed;
-    public float ZLevel
-    {
-        get { return _zLevel - (float)Layer.Parallax; }
-        set { _zLevel = (float)Layer.Parallax + value; }
-    }
+    public float ZLevel;
 
     private readonly List<Renderable> _repeatRenderables;
     private readonly Camera _camera;
@@ -52,20 +48,29 @@ public sealed class ParallaxLayer
 
         _layerPositionBase = (Vector2Int)Vector2.Zero - (new Vector2(0, Image.Bounds.Height));
 
-        if (repeatX)
+        if (_repeatX)
         { _countX = (_camera.RenderTarget.Width / (int)(Image.Bounds.Width * Scale.X)) + 2; }
         else
         { _countX = 1; }
 
-        if (repeatY)
+        if (_repeatY)
         { _countY = (_camera.RenderTarget.Height / (int)(Image.Bounds.Height * Scale.Y)) + 2; }
         else
         { _countY = 1; }
 
-        if (fixX)
+        if (_fixX)
         { Value.Y = 1; }
-        if (fixY)
+        if (_fixY)
         { Value.X = 1; }
+
+        if (ZLevel >= 0.0)
+        { _zLevel = (float)Layer.Parallax + ZLevel; }
+        else if (ZLevel < 0.0 && ZLevel > -1.0)
+        { _zLevel = (float)Layer.ForegroundBlocks + ZLevel; }
+        else
+        { _zLevel = (float)Layer.Top; }
+        Debug.WriteLine(_zLevel);
+
 
         _repeatRenderables = new List<Renderable>
         {

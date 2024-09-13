@@ -47,7 +47,8 @@ public sealed class WorldDownload : IPacket {
     public static WorldDownload Default() {
         string?[,,] newWorld = new string[GlobalsShared.MaxX, GlobalsShared.MaxY, 2];
 
-        for (int i = 0; i < GlobalsShared.MaxX; i++) {
+        for (int i = 0; i < GlobalsShared.MaxX; i++)
+        {
             newWorld[i, 0, 1] = "stone";
             newWorld[i, 1, 1] = "dirt";
             newWorld[i, 2, 1] = "dirt";
@@ -55,6 +56,16 @@ public sealed class WorldDownload : IPacket {
             newWorld[i, 4, 1] = "dirt";
             newWorld[i, 5, 1] = "grass";
         }
+
+        //for (int i = 0; i < GlobalsShared.MaxX; i++)
+        //{
+        //    newWorld[i, 0, 1] = "concrete";
+        //    newWorld[i, 1, 1] = "concrete";
+        //    newWorld[i, 2, 1] = "concrete";
+        //    newWorld[i, 3, 1] = "air";
+        //    newWorld[i, 4, 1] = "concrete";
+        //    newWorld[i, 5, 1] = "asphalt";
+        //}
 
         return new WorldDownload {
             World = newWorld,
