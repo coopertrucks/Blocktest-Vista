@@ -97,7 +97,7 @@ public sealed class ParallaxManager
     {
         ParallaxLayer layer;
 
-        layer = new("road_front", new Vector2Int(0, -200), new Vector2(0.4f, 0.2f), _camera);
+        layer = new("road_front", new Vector2Int(0, -180), new Vector2(0.4f, 0.2f), _camera);
         AddParallaxLayer(layer);
 
         Debug.WriteLine("Default ParallaxManager Initialized");
