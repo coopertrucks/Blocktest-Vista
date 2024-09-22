@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using Blocktest.Block_System;
 using Blocktest.Scenes;
@@ -72,6 +73,7 @@ public sealed class BlocktestGame : Game {
         _currentScene?.Draw(gameTime, GraphicsDevice);
 
         base.Draw(gameTime);
+        
     }
 
     protected override void OnExiting(object sender, EventArgs args) {

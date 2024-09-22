@@ -32,7 +32,7 @@ public sealed class Client : NetworkInterface {
         Renderable newRenderable = new(newTransform, Layer.Player, Drawable.PlaceholderDrawable);
         LocalWorldState.PlayerPositions.Add(peer.RemoteId, newTransform);
         _playerRenderables.Add(peer.RemoteId, newRenderable);
-        _camera.RenderedComponents.Add(newRenderable);
+        _camera.RenderableComponents.Players.Add(newRenderable);
     }
 
     private void PeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo) {
@@ -95,7 +95,7 @@ public sealed class Client : NetworkInterface {
                 Console.WriteLine("Player disconnected");
 
                 LocalWorldState.PlayerPositions.Remove(peerEvent.SourceId);
-                _camera.RenderedComponents.Remove(_playerRenderables[peerEvent.SourceId]);
+                _camera.RenderableComponents.Players.Remove(_playerRenderables[peerEvent.SourceId]);
                 _playerRenderables.Remove(peerEvent.SourceId);
                 break;
             case PeerEvent.PeerEventType.PeerConnect:
@@ -105,7 +105,7 @@ public sealed class Client : NetworkInterface {
                 Renderable newRenderable = new(newTransform, Layer.Player, Drawable.PlaceholderDrawable);
                 LocalWorldState.PlayerPositions.Add(peerEvent.SourceId, newTransform);
                 _playerRenderables.Add(peerEvent.SourceId, newRenderable);
-                _camera.RenderedComponents.Add(newRenderable);
+                _camera.RenderableComponents.Players.Add(newRenderable);
                 break;
             case PeerEvent.PeerEventType.PlayerList:
             default:

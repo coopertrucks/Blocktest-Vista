@@ -14,7 +14,8 @@ public sealed class ParallaxManager
         _camera = camera;
         ParallaxLayers = [];
 
-        Test(); // Initialize parallax here
+        //Test(); // Initialize parallax here
+        Prometheus();
     }
 
     public void AddParallaxLayer(ParallaxLayer parallaxLayer, string? parallaxLayerName = null)
@@ -107,38 +108,38 @@ public sealed class ParallaxManager
     {
         ParallaxLayer layer;
 
-        layer = new("bridge_front", new Vector2Int(0, -30), new Vector2(-0.5f, 0.8f), -0.5f, 2.0f*Vector2.One, Vector2.Zero, _camera);
-        AddParallaxLayer(layer);
-
-        layer = new("bridge_front", new Vector2Int(0, 0), new Vector2(0.0f), -0.1f, Vector2.One, Vector2.Zero, _camera);
-        AddParallaxLayer(layer);
-
-        layer = new("bridge_rear", new Vector2Int(0, 0), new Vector2(0.0f), 0.1f, Vector2.One, Vector2.Zero, _camera);
-        AddParallaxLayer(layer);
-
-        layer = new("road_front", new Vector2Int(0, -200), new Vector2(0.4f, 0.2f), _camera);
-        AddParallaxLayer(layer);
-
-        layer = new("streets_front", new Vector2Int(0, 85), new Vector2(0.5f, 0.25f), _camera);
-        AddParallaxLayer(layer);
-
-        layer = new("road_front", new Vector2Int(0, 0), new Vector2(0.55f, 0.6f), 0.55f, new Vector2(0.5f), Vector2.Zero, _camera);
-        AddParallaxLayer(layer);
-
-        layer = new("streets_middle", new Vector2Int(0, 100), new Vector2(0.6f, 0.7f), 0.6f, new Vector2(1.2f), Vector2.Zero, _camera);
-        AddParallaxLayer(layer);
-
-        layer = new("streets_back", new Vector2Int(0, 120), new Vector2(0.8f, 0.75f), 0.7f, new Vector2(1.5f), Vector2.Zero, _camera);
-        AddParallaxLayer(layer);
-
-        layer = new("prometheus_towers", new Vector2Int(-210, 180), new Vector2(1.0f, 0.78f), 1.0f, new Vector2(1.5f), Vector2.Zero, _camera);
+        layer = new("prometheus_back", new Vector2Int(0, 80), new Vector2(1.3f, 1.0f), _camera);
         AddParallaxLayer(layer);
 
         layer = new("prometheus_city", new Vector2Int(0, 70), new Vector2(1.2f, 0.9f), _camera);
         AddParallaxLayer(layer);
 
-        layer = new("prometheus_back", new Vector2Int(0, 80), new Vector2(1.3f, 1.0f), _camera);
+        layer = new("prometheus_towers", new Vector2Int(-210, 180), new Vector2(1.0f, 0.78f), 1.0f, new Vector2(1.5f), Vector2.Zero, _camera);
         AddParallaxLayer(layer);
+
+        layer = new("streets_back", new Vector2Int(0, 120), new Vector2(0.8f, 0.75f), 0.7f, new Vector2(1.5f), Vector2.Zero, _camera);
+        AddParallaxLayer(layer);
+
+        layer = new("streets_middle", new Vector2Int(0, 100), new Vector2(0.6f, 0.7f), 0.6f, new Vector2(1.2f), Vector2.Zero, _camera);
+        AddParallaxLayer(layer);
+
+        layer = new("road_front", new Vector2Int(0, 0), new Vector2(0.55f, 0.6f), 0.55f, new Vector2(0.5f), Vector2.Zero, _camera);
+        AddParallaxLayer(layer);
+
+        layer = new("streets_front", new Vector2Int(0, 85), new Vector2(0.5f, 0.25f), _camera);
+        AddParallaxLayer(layer);
+
+        layer = new("road_front", new Vector2Int(0, -200), new Vector2(0.4f, 0.2f), _camera);
+        AddParallaxLayer(layer);
+
+        layer = new("bridge_rear", new Vector2Int(0, 0), new Vector2(0.0f), 0.1f, Vector2.One, Vector2.Zero, _camera);
+        AddParallaxLayer(layer);
+
+        layer = new("bridge_front", new Vector2Int(0, 0), new Vector2(0.0f), -0.1f, Vector2.One, Vector2.Zero, _camera);
+        AddParallaxLayer(layer);
+
+        //layer = new("bridge_front", new Vector2Int(0, -30), new Vector2(-0.5f, 0.8f), -0.5f, 2.0f*Vector2.One, Vector2.Zero, _camera);
+        //AddParallaxLayer(layer);
 
         Debug.WriteLine("Default ParallaxManager Initialized");
     }

@@ -47,8 +47,8 @@ public sealed class GameScene : IScene {
         _camera = new Camera(_cameraPosition, new Vector2(640, 360), game.GraphicsDevice);
 
         _parallaxManager = new(_camera); // parallax engine
-        _backgroundTilemapSprites = new RenderableTilemap(_worldState.Foreground, _camera);
-        _foregroundTilemapSprites = new RenderableTilemap(_worldState.Background, _camera);
+        _backgroundTilemapSprites = new RenderableTilemap(_worldState.Foreground, _camera, false);
+        _foregroundTilemapSprites = new RenderableTilemap(_worldState.Background, _camera, true);
         _networkingClient = new Client(_worldState, _camera, game);
 
         _blockStrings = BlockManagerShared.AllBlocks.Keys.ToArray();
@@ -65,7 +65,8 @@ public sealed class GameScene : IScene {
         Transform newTransform = new(new Vector2Int(256, 128));
         Renderable newRenderable = new(newTransform, Layer.Player, Drawable.PlaceholderDrawable);
         _worldState.PlayerPositions.Add(0, newTransform);
-        _camera.RenderedComponents.Add(newRenderable);
+        _camera.RenderableComponents.Players.Add(newRenderable);
+        //_camera.RenderedComponents.Add(newRenderable);
 
         WorldDownload testDownload = WorldDownload.Default();
         testDownload.Process(_worldState);
@@ -97,6 +98,7 @@ public sealed class GameScene : IScene {
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
         _spriteBatch.Draw(_camera.RenderTarget, destinationRectangle, Color.White);
+        //_spriteBatch.Draw(_camera.LightingRenderTarget, destinationRectangle, Color.White);
 
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 

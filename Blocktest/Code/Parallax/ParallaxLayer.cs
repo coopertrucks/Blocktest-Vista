@@ -17,6 +17,7 @@ public sealed class ParallaxLayer
 
     private readonly List<Renderable> _repeatRenderables;
     private readonly Camera _camera;
+    private readonly HashSet<Renderable> _cameraRenderables;
     private readonly bool _repeatX;
     private readonly bool _repeatY;
     private readonly bool _fixX;
@@ -27,6 +28,7 @@ public sealed class ParallaxLayer
     private float _zLevel;
     private int _countX;
     private int _countY;
+    private bool _isForeground;
 
     //private float _cornerAngle;
 
@@ -64,13 +66,14 @@ public sealed class ParallaxLayer
         { Value.X = 1; }
 
         if (ZLevel >= 0.0)
-        { _zLevel = (float)Layer.Parallax + ZLevel; }
+        { _zLevel = (float)Layer.Parallax + ZLevel; _isForeground = false; }
         else if (ZLevel < 0.0 && ZLevel > -1.0)
-        { _zLevel = (float)Layer.ForegroundBlocks + ZLevel; }
+        { _zLevel = (float)Layer.ForegroundBlocks + ZLevel; _isForeground = true; }
         else
-        { _zLevel = (float)Layer.Top; }
-        Debug.WriteLine(_zLevel);
+        { _zLevel = (float)Layer.Top; _isForeground = true; }
 
+        // determines if shoudl draw to foreground or background parallax layers
+        _cameraRenderables = !_isForeground ? _camera.RenderableComponents.BackgroundParallax : _camera.RenderableComponents.ForegroundParallax;
 
         _repeatRenderables = new List<Renderable>
         {
@@ -99,7 +102,7 @@ public sealed class ParallaxLayer
             Renderable newRenderable = new(newTransform, _zLevel, Image, Color.White);
             _repeatRenderables.Add(newRenderable);
 
-            _camera.RenderedComponents.Add(_repeatRenderables[i]);
+            _cameraRenderables.Add(_repeatRenderables[i]);
         }
     }
 
@@ -158,9 +161,9 @@ public sealed class ParallaxLayer
         {
             j = i / _countX;
 
-            _camera.RenderedComponents.Remove(rendered);
+            _cameraRenderables.Remove(rendered);
             rendered.Transform.Position = new Vector2Int(_layerPosition.X + (i - _countX * j - (_repeatX ? 1 : 0)) * (int)(Image.Bounds.Width * Scale.X), _layerPosition.Y + (j - (_repeatY ? 1 : 0)) * (int)(Image.Bounds.Height * Scale.Y));
-            _camera.RenderedComponents.Add(rendered);
+            _cameraRenderables.Add(rendered);
 
             i += 1;
         }
