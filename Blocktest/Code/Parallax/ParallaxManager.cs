@@ -138,7 +138,8 @@ public sealed class ParallaxManager
         layer = new("bridge_front", new Vector2Int(0, 0), new Vector2(0.0f), -0.1f, Vector2.One, Vector2.Zero, _camera);
         AddParallaxLayer(layer);
 
-        //layer = new("bridge_front", new Vector2Int(0, -30), new Vector2(-0.5f, 0.8f), -0.5f, 2.0f*Vector2.One, Vector2.Zero, _camera);
+
+        //layer = new("bridge_front", new Vector2Int(0, -30), new Vector2(-0.5f, 0.8f), -0.5f, 2.0f * Vector2.One, Vector2.Zero, _camera);
         //AddParallaxLayer(layer);
 
         Debug.WriteLine("Default ParallaxManager Initialized");

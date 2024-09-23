@@ -31,7 +31,6 @@ public sealed class GameScene : IScene {
     private readonly ParallaxManager _parallaxManager;
 
     private readonly Vector2 _cameraPosition;
-    private Vector2 _cameraStayPosition;
 
     private readonly WorldState _worldState = new();
 
@@ -47,8 +46,8 @@ public sealed class GameScene : IScene {
         _camera = new Camera(_cameraPosition, new Vector2(640, 360), game.GraphicsDevice);
 
         _parallaxManager = new(_camera); // parallax engine
-        _backgroundTilemapSprites = new RenderableTilemap(_worldState.Foreground, _camera, false);
-        _foregroundTilemapSprites = new RenderableTilemap(_worldState.Background, _camera, true);
+        _backgroundTilemapSprites = new RenderableTilemap(_worldState.Background, _camera, false);
+        _foregroundTilemapSprites = new RenderableTilemap(_worldState.Foreground, _camera, true);
         _networkingClient = new Client(_worldState, _camera, game);
 
         _blockStrings = BlockManagerShared.AllBlocks.Keys.ToArray();
@@ -97,12 +96,13 @@ public sealed class GameScene : IScene {
         graphicsDevice.Clear(Color.Black);
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-        _spriteBatch.Draw(_camera.RenderTarget, destinationRectangle, Color.White);
-        //_spriteBatch.Draw(_camera.LightingRenderTarget, destinationRectangle, Color.White);
+        //_spriteBatch.Draw(_camera.RenderTarget, destinationRectangle, Color.White);
+        _spriteBatch.Draw(_camera.LightingRenderTarget, destinationRectangle, Color.White);
 
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         _frameCounter.Update(deltaTime);
+        //Debug.WriteLine(_frameCounter.AverageFramesPerSecond);
 
         _spriteBatch.End();
 
