@@ -19,7 +19,8 @@ public sealed class Camera {
     public Rectangle RenderLocation;
 
     private Color _layerColor;
-    private Effect? _setWhite;
+    private Effect? _setGrayscaleColor;
+    private Effect? _gradientVertical;
     private Stopwatch _debugStopwatch;
     private HashSet<Renderable>? _renderedComponents;
 
@@ -34,7 +35,8 @@ public sealed class Camera {
 
         LightingRenderTarget = new RenderTarget2D(graphicsDevice, (int)size.X, (int)size.Y, false, SurfaceFormat.Color,
             DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
-        _setWhite = BlocktestGame.ContentManager?.Load<Effect>("Graphics/Effects/setWhite");
+        _setGrayscaleColor = BlocktestGame.ContentManager?.Load<Effect>("Graphics/Effects/setGrayscaleColor");
+        _gradientVertical = BlocktestGame.ContentManager?.Load<Effect>("Graphics/Effects/gradientVertical");
 
         _debugStopwatch = Stopwatch.StartNew();
     }
@@ -49,15 +51,58 @@ public sealed class Camera {
         graphics.SetRenderTarget(RenderTarget);
         graphics.Clear(_backgroundColor);
 
-        LiteOrderedDraw(graphics, spriteBatch);
-        //OrderedDraw(graphics, spriteBatch);
+        //StandardDraw(graphics, spriteBatch);
+        LiteOrderedDrawLighting(graphics, spriteBatch);
+        //OrderedDrawLighting(graphics, spriteBatch);
 
         graphics.SetRenderTarget(null);
 
         Debug.WriteLine(_debugStopwatch.ElapsedMilliseconds); // track performance
     }
 
-    public void LiteOrderedDraw(GraphicsDevice graphics, SpriteBatch spriteBatch)
+    public void StandardDraw(GraphicsDevice graphics, SpriteBatch spriteBatch)
+    {
+        // draw sky
+        graphics.SetRenderTarget(RenderTarget);
+        _gradientVertical?.Parameters["topColor"].SetValue(new Vector3(115, 195, 255));
+        _gradientVertical?.Parameters["bottomColor"].SetValue(new Vector3(255, 255, 205));
+        spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Opaque, SamplerState.PointClamp, effect: _gradientVertical);
+        spriteBatch.Draw(RenderTarget, Vector2.Zero, Color.Black);
+        spriteBatch.End();
+
+        // draw background parallax
+        graphics.SetRenderTarget(RenderTarget);
+        spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp);
+        _renderedComponents = RenderableComponents.BackgroundParallax;
+        DrawCallExternal(spriteBatch, _renderedComponents);
+        spriteBatch.End();
+
+        // draw background blocks
+        spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
+        _renderedComponents = RenderableComponents.BackgroundBlocks;
+        DrawCallExternal(spriteBatch, _renderedComponents);
+        spriteBatch.End();
+
+        // draw player
+        spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp);
+        _renderedComponents = RenderableComponents.Players;
+        DrawCallExternal(spriteBatch, _renderedComponents);
+        spriteBatch.End();
+
+        // draw foreground blocks
+        spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
+        _renderedComponents = RenderableComponents.ForegroundBlocks;
+        DrawCallExternal(spriteBatch, _renderedComponents);
+        spriteBatch.End();
+
+        // draw foreground parallax
+        spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp);
+        _renderedComponents = RenderableComponents.ForegroundParallax;
+        DrawCallExternal(spriteBatch, _renderedComponents);
+        spriteBatch.End();
+    }
+
+    public void LiteOrderedDrawLighting(GraphicsDevice graphics, SpriteBatch spriteBatch)
     {
         // draw background parallax
         graphics.SetRenderTarget(RenderTarget);
@@ -67,7 +112,7 @@ public sealed class Camera {
         spriteBatch.End();
 
         graphics.SetRenderTarget(LightingRenderTarget);
-        DrawCallBatchedLighting(spriteBatch, _renderedComponents, _setWhite, (float)Layer.Parallax);
+        DrawCallBatchedLighting(spriteBatch, _renderedComponents, _setGrayscaleColor, (float)Layer.Parallax);
 
         // draw background blocks
         graphics.SetRenderTarget(RenderTarget);
@@ -77,7 +122,7 @@ public sealed class Camera {
         spriteBatch.End();
 
         graphics.SetRenderTarget(LightingRenderTarget);
-        DrawCallBatchedLighting(spriteBatch, _renderedComponents, _setWhite, (float)Layer.BackgroundBlocks);
+        DrawCallBatchedLighting(spriteBatch, _renderedComponents, _setGrayscaleColor, (float)Layer.BackgroundBlocks);
 
         // draw player
         graphics.SetRenderTarget(RenderTarget);
@@ -87,7 +132,7 @@ public sealed class Camera {
         spriteBatch.End();
 
         graphics.SetRenderTarget(LightingRenderTarget);
-        DrawCallBatchedLighting(spriteBatch, _renderedComponents, _setWhite, (float)Layer.Player);
+        DrawCallBatchedLighting(spriteBatch, _renderedComponents, _setGrayscaleColor, (float)Layer.Player);
 
         // draw foreground blocks
         graphics.SetRenderTarget(RenderTarget);
@@ -97,7 +142,7 @@ public sealed class Camera {
         spriteBatch.End();
 
         graphics.SetRenderTarget(LightingRenderTarget);
-        DrawCallBatchedLighting(spriteBatch, _renderedComponents, _setWhite, (float)Layer.ForegroundBlocks);
+        DrawCallBatchedLighting(spriteBatch, _renderedComponents, _setGrayscaleColor, (float)Layer.ForegroundBlocks);
 
         // draw foreground parallax
         graphics.SetRenderTarget(RenderTarget);
@@ -107,61 +152,61 @@ public sealed class Camera {
         spriteBatch.End();
 
         graphics.SetRenderTarget(LightingRenderTarget);
-        DrawCallBatchedLighting(spriteBatch, _renderedComponents, _setWhite, (float)Layer.Top);
+        DrawCallBatchedLighting(spriteBatch, _renderedComponents, _setGrayscaleColor, (float)Layer.Top);
     }
 
-
-    public void OrderedDraw(GraphicsDevice graphics, SpriteBatch spriteBatch)
+    public void OrderedDrawLighting(GraphicsDevice graphics, SpriteBatch spriteBatch)
     {
         // draw background parallax
         spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp);
         _renderedComponents = RenderableComponents.BackgroundParallax;
-        SpritebatchDrawCall(spriteBatch, _renderedComponents);
+        DrawCallExternal(spriteBatch, _renderedComponents);
         spriteBatch.End();
 
         graphics.SetRenderTarget(LightingRenderTarget);
-        DrawCallLayeredLighting(spriteBatch, _renderedComponents, _setWhite);
+        DrawCallLayeredLighting(spriteBatch, _renderedComponents, _setGrayscaleColor);
 
         // draw background blocks
         graphics.SetRenderTarget(RenderTarget);
         spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
         _renderedComponents = RenderableComponents.BackgroundBlocks;
-        SpritebatchDrawCall(spriteBatch, _renderedComponents);
+        DrawCallExternal(spriteBatch, _renderedComponents);
         spriteBatch.End();
 
         graphics.SetRenderTarget(LightingRenderTarget);
-        DrawCallBatchedLighting(spriteBatch, _renderedComponents, _setWhite, (float)Layer.BackgroundBlocks);
+        DrawCallBatchedLighting(spriteBatch, _renderedComponents, _setGrayscaleColor, (float)Layer.BackgroundBlocks);
 
         // draw player
         graphics.SetRenderTarget(RenderTarget);
         spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp);
         _renderedComponents = RenderableComponents.Players;
-        SpritebatchDrawCall(spriteBatch, _renderedComponents);
+        DrawCallExternal(spriteBatch, _renderedComponents);
         spriteBatch.End();
 
         graphics.SetRenderTarget(LightingRenderTarget);
-        DrawCallBatchedLighting(spriteBatch, _renderedComponents, _setWhite, (float)Layer.Player);
+        DrawCallBatchedLighting(spriteBatch, _renderedComponents, _setGrayscaleColor, (float)Layer.Player);
 
         // draw foreground blocks
         graphics.SetRenderTarget(RenderTarget);
         spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
         _renderedComponents = RenderableComponents.ForegroundBlocks;
-        SpritebatchDrawCall(spriteBatch, _renderedComponents);
+        DrawCallExternal(spriteBatch, _renderedComponents);
         spriteBatch.End();
 
         graphics.SetRenderTarget(LightingRenderTarget);
-        DrawCallBatchedLighting(spriteBatch, _renderedComponents, _setWhite, (float)Layer.ForegroundBlocks);
+        DrawCallBatchedLighting(spriteBatch, _renderedComponents, _setGrayscaleColor, (float)Layer.ForegroundBlocks);
 
         // draw foreground parallax
         graphics.SetRenderTarget(RenderTarget);
         spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp);
         _renderedComponents = RenderableComponents.ForegroundParallax;
-        SpritebatchDrawCall(spriteBatch, _renderedComponents);
+        DrawCallExternal(spriteBatch, _renderedComponents);
         spriteBatch.End();
 
         graphics.SetRenderTarget(LightingRenderTarget);
-        DrawCallLayeredLighting(spriteBatch, _renderedComponents, _setWhite);
+        DrawCallLayeredLighting(spriteBatch, _renderedComponents, _setGrayscaleColor);
     }
+
 
     public void DrawCallExternal(SpriteBatch spriteBatch, HashSet<Renderable> renderedComponents)
     {
@@ -199,9 +244,9 @@ public sealed class Camera {
     public void DrawCallBatchedLighting(SpriteBatch spriteBatch, HashSet<Renderable> renderedComponents, Effect? effects, float layerValue)
     {
         float _layerColor = 1 - layerValue / (EnumCount + 1);
-        _setWhite?.Parameters["color"].SetValue(_layerColor);
+        _setGrayscaleColor?.Parameters["color"].SetValue(_layerColor);
 
-        spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, effect: _setWhite);
+        spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, effect: _setGrayscaleColor);
 
         foreach (Renderable component in renderedComponents)
         {
@@ -264,8 +309,8 @@ public sealed class Camera {
                 (int)(component.Appearance.Bounds.Height * component.Transform.Scale.Y));
 
             float _layerColor = 1 - component.LayerValue / (EnumCount + 1);
-            _setWhite?.Parameters["color"].SetValue(_layerColor);
-            spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, effect: _setWhite);
+            _setGrayscaleColor?.Parameters["color"].SetValue(_layerColor);
+            spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, effect: _setGrayscaleColor);
             spriteBatch.Draw(component.Appearance.Texture, positionBounds, component.Appearance.Bounds,
                 component.RenderColor, component.Transform.Rotation, component.Transform.Origin, SpriteEffects.None,
                 component.LayerValue / (EnumCount + 1));

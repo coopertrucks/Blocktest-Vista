@@ -7,7 +7,8 @@
 	#define PS_SHADERMODEL ps_4_0_level_9_1
 #endif
 
-extern float color;
+extern float3 topColor;
+extern float3 bottomColor;
 
 Texture2D SpriteTexture;
 
@@ -25,13 +26,9 @@ struct VertexShaderOutput
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
-    float4 outColor = tex2D(SpriteTextureSampler, input.TextureCoordinates);
-    if (outColor.a > 0.0)
-    {
-        outColor.a = 1.0;
-    }
-    outColor.rgb = (color, color, color);
-	return outColor;
+    float2 uv = input.TextureCoordinates;
+    float4 gradientColor = float4(uv.y * normalize(bottomColor) + (1 - uv.y) * normalize(topColor), 1.0f);
+    return gradientColor;
 }
 
 technique SpriteDrawing
