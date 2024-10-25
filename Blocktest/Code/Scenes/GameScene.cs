@@ -18,7 +18,6 @@ public sealed class GameScene : IScene {
     private readonly RenderableTilemap _backgroundTilemapSprites;
     private readonly string[] _blockStrings;
 
-    private readonly Camera _camera;
     private readonly bool _connect;
     private readonly RenderableTilemap _foregroundTilemapSprites;
     private readonly FrameCounter _frameCounter = new();
@@ -28,8 +27,9 @@ public sealed class GameScene : IScene {
     private readonly Client _networkingClient;
     private readonly SpriteBatch _spriteBatch;
 
+    private readonly Camera _camera;
+    private readonly Camera _subCamera;
     private readonly Vector2 _cameraPosition;
-    private Vector2 _cameraStayPosition;
 
     private readonly WorldState _worldState = new();
 
@@ -43,6 +43,7 @@ public sealed class GameScene : IScene {
 
         _cameraPosition = Vector2.Zero;
         _camera = new Camera(_cameraPosition, new Vector2(640, 360), game.GraphicsDevice);
+        _subCamera = new Camera(_cameraPosition, new Vector2(640, 360), 2.0f, game.GraphicsDevice, Color.Transparent);
 
         _backgroundTilemapSprites = new RenderableTilemap(_worldState.Foreground, _camera);
         _foregroundTilemapSprites = new RenderableTilemap(_worldState.Background, _camera);
@@ -62,7 +63,8 @@ public sealed class GameScene : IScene {
         Transform newTransform = new(new Vector2Int(256, 128));
         Renderable newRenderable = new(newTransform, Layer.Player, Drawable.PlaceholderDrawable);
         _worldState.PlayerPositions.Add(0, newTransform);
-        _camera.RenderedComponents.Add(newRenderable);
+        //_camera.RenderedComponents.Add(newRenderable);
+        _subCamera.RenderedComponents.Add(newRenderable);
 
         WorldDownload testDownload = WorldDownload.Default();
         testDownload.Process(_worldState);
@@ -86,6 +88,7 @@ public sealed class GameScene : IScene {
     public void Draw(GameTime gameTime, GraphicsDevice graphicsDevice) {
         graphicsDevice.Clear(Color.CornflowerBlue);
         _camera.Draw(graphicsDevice, _spriteBatch);
+        _subCamera.Draw(graphicsDevice, _spriteBatch);
 
         const bool pixelPerfect = true;
 
@@ -101,6 +104,10 @@ public sealed class GameScene : IScene {
 
         _frameCounter.Update(deltaTime);
 
+        _spriteBatch.End();
+
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        _spriteBatch.Draw(_subCamera.RenderTarget, destinationRectangle, Color.White);
         _spriteBatch.End();
 
         _gameDesktop.Render();
@@ -157,12 +164,8 @@ public sealed class GameScene : IScene {
 
         int selfId = _networkingClient.Server?.RemoteId ?? 0;
         if (moveVector != Vector2.Zero) {
-            //_camera.Position += moveVector;
-            Debug.WriteLine(selfId);
-
             MovePlayer movementPacket = new() {
                 TickNum = _networkingClient.LocalTickBuffer.CurrTick,
-                //Position = (Vector2Int)_camera.Position,
                 AddToPosition = (Vector2Int)moveVector,
                 SourceId = selfId
             };
@@ -171,6 +174,8 @@ public sealed class GameScene : IScene {
                 _networkingClient.SendPacket(movementPacket);
             }
         }
+
+        _worldState.PlayerPositions[selfId].Rotation += (float)Math.PI/256;
 
         // allows free camera movement with lctrl, returns to player
         Vector2 cameraMoveVector = Vector2.Zero;
@@ -191,6 +196,7 @@ public sealed class GameScene : IScene {
             _camera.Position.X = _worldState.PlayerPositions[selfId].Position.X - _camera.RenderTarget.Width / 2;
             _camera.Position.Y = _worldState.PlayerPositions[selfId].Position.Y - _camera.RenderTarget.Height / 2;
         }
+        _subCamera.Position = _camera.Position;
 
         _previousKeyboardState = currentKeyboardState;
 

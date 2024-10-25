@@ -1,9 +1,12 @@
+using System.Diagnostics;
+
 namespace Blocktest.Rendering;
 
 public sealed class Camera {
     private static readonly int EnumCount = Enum.GetValues(typeof(Layer)).Length;
     private readonly Color _backgroundColor;
     private readonly Vector2 _size;
+    private readonly float _subScale;
 
     public readonly HashSet<Renderable> RenderedComponents = [];
     public readonly RenderTarget2D RenderTarget;
@@ -11,18 +14,25 @@ public sealed class Camera {
 
     public Rectangle RenderLocation;
 
-    public Camera(Vector2 position, Vector2 size, GraphicsDevice graphicsDevice, Color? backgroundColor = null) {
+    public Camera(Vector2 position, Vector2 size, float subScale, GraphicsDevice graphicsDevice, Color? backgroundColor = null) {
         Position = position;
         _size = size;
+        _subScale = subScale;
         _backgroundColor = backgroundColor ?? Color.CornflowerBlue;
-        RenderTarget = new RenderTarget2D(graphicsDevice, (int)size.X, (int)size.Y, false, SurfaceFormat.Color,
+        RenderTarget = new RenderTarget2D(graphicsDevice, (int)(size.X * subScale), (int)(size.Y * subScale), false, SurfaceFormat.Color,
             DepthFormat.None, 0, RenderTargetUsage.DiscardContents);
+    }
+
+    public Camera(Vector2 position, Vector2 size, GraphicsDevice graphicsDevice, Color? backgroundColor = null) 
+        : this(position, size, 1.0f, graphicsDevice, backgroundColor)
+    {
+
     }
 
     public void Draw(GraphicsDevice graphics, SpriteBatch spriteBatch) {
         graphics.SetRenderTarget(RenderTarget);
         graphics.Clear(_backgroundColor);
-
+        
         spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp);
 
         foreach (Renderable component in RenderedComponents) {
@@ -30,6 +40,7 @@ public sealed class Camera {
                 continue;
             }
 
+            //Vector2 worldPosition = new Vector2(component.Transform.Position.X * _subScale, component.Transform.Position.Y * _subScale);
             Vector2 worldPosition = component.Transform.Position;
             Vector2 cameraPosition = worldPosition - Position;
 
@@ -40,12 +51,12 @@ public sealed class Camera {
                 continue;
             }
 
-            Vector2 flippedPosition = new(cameraPosition.X,
-                RenderTarget.Height - cameraPosition.Y - component.Appearance.Bounds.Height);
+            Vector2 flippedPosition = new((_subScale * cameraPosition.X),
+                RenderTarget.Height - (_subScale * cameraPosition.Y + component.Appearance.Bounds.Height));
 
             Rectangle positionBounds = new((int)flippedPosition.X, (int)flippedPosition.Y,
-                (int)(component.Appearance.Bounds.Width * component.Transform.Scale.X),
-                (int)(component.Appearance.Bounds.Height * component.Transform.Scale.Y));
+                (int)(component.Appearance.Bounds.Width * component.Transform.Scale.X * _subScale),
+                (int)(component.Appearance.Bounds.Height * component.Transform.Scale.Y * _subScale));
 
             spriteBatch.Draw(component.Appearance.Texture, positionBounds, component.Appearance.Bounds,
                 component.RenderColor, component.Transform.Rotation, component.Transform.Origin, SpriteEffects.None,
